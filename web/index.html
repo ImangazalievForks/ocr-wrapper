@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OCR Wrapper</title>
+<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="jquery.Jcrop.min.js"></script>
+<script type="text/javascript">
+
+$(function() {
+	$.post("ajax.php", {get_available_programs:true}, function(response) {
+		$.each(jQuery.parseJSON(response), function(key, value) {
+			$('#program').append('<option>'+value+'</option>');
+		});
+	});
+});
+ 
+function readImage(input) {
+	$("#results-lander").fadeOut();
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+        	var image = new Image();
+        	image.src = e.target.result;
+        	image.id = "image";
+            $('#image-lander').html(image);
+            $('#image').Jcrop({
+        		onSelect: processSlice
+        	});
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function processSlice(c){
+	var image = document.getElementById('image');
+	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext("2d");
+	canvas.width = c.w;
+	canvas.height = c.h;
+	ctx.drawImage(image, c.x, c.y, c.w, c.h, 0, 0, c.w, c.h);
+	var image_url = canvas.toDataURL("image/png");
+	var post_data = {data:image_url.split(',')[1]};
+	if($('#program').val()){
+		post_data.program = $('#program').val();
+	}
+	$("#results-lander").fadeOut();
+	$.post("ajax.php", post_data, function(response) {
+		var results =  jQuery.parseJSON(response);
+		$('#results-lander').html('');
+		$.each(results, function(program, output) {
+			$('#results-lander').append('<div class="result"><b>'+program+'</b><pre>'+output+'</pre></div>');
+		});
+		$("#results-lander").fadeIn();
+	});
+}
+
+</script>
+<style>
+body{
+	background-color: #F8F8F8;
+}
+.result{
+	float:left;
+	margin-right:10px;
+	border: 2px solid;
+    border-radius: 10px;
+    padding: 5px;
+    background-color: #FFFFFF;
+}
+#results-lander{
+	margin-bottom:50px;
+}
+</style>
+</head>
+<body>
+<h1>OCR Wrapper</h1>
+Program(s): <select name="program" id="program"><option value="">All</option></select><br>
+<input class="file" type="file" id="upload-file" onchange="readImage(this);">
+<h3>Image:</h3>
+<div id="image-lander"></div><br>
+<h3>Results:</h3>
+<div id="results-lander"></div>
+<canvas id="canvas" style="display:none;"></canvas>
+</body>
+</html>

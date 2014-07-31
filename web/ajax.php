@@ -5,10 +5,5 @@ if(isset($_POST['get_available_programs'])){
 }
 elseif(isset($_POST['data'])){
 	$program = isset($_POST['program']) && $_POST['program'] != 'all' ? $_POST['program'] : null;
-	try{
-		echo json_encode(OCR::run($_POST['data'], $program));
-	}
-	catch(Exception $e){
-		$error = $e->getMessage();
-	}
+	echo json_encode(OCR::run($_POST['data'], $program));
 }

@@ -7,6 +7,11 @@
 <script type="text/javascript">
 
 $(function() {
+	$(document).ajaxStart(function(){
+	    $("#loading").fadeIn("fast");
+	 }).ajaxStop(function(){
+		 $("#loading").fadeOut("fast");
+	 });
 	$.post("ajax.php", {get_available_programs:true}, function(response) {
 		$.each(jQuery.parseJSON(response), function(key, value) {
 			$('#program').append('<option>'+value+'</option>');
@@ -70,6 +75,19 @@ body{
 #results-lander{
 	margin-bottom:50px;
 }
+#loading {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('loading-green.gif') 
+                50% 50% 
+                no-repeat;
+}
 </style>
 </head>
 <body>
@@ -81,5 +99,6 @@ Program(s): <select name="program" id="program"><option value="">All</option></s
 <h3>Results:</h3>
 <div id="results-lander"></div>
 <canvas id="canvas" style="display:none;"></canvas>
+<div id="loading"></div>
 </body>
 </html>
